@@ -8,8 +8,12 @@ input {
 }
 
 .content {
-    max-width: 1440px;
-    margin: auto;
+	max-width: 1440px;
+	margin: auto;
+}
+
+.lowerContent {
+	margin: auto;
 }
 
 table, th, td {
