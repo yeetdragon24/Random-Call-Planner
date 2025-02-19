@@ -296,7 +296,7 @@ app.controller('myCtrl', function ($scope) {
 	function check_randoms(spells) {
 		Math.seedrandom($scope.seed + '/' + spells);
 		let randomValues = [];
-		for (let i = 0; i < 8; i++) {
+		for (let i = 0; i < 10; i++) {
 			randomValues.push(Math.random());
 		}
 		return randomValues;
