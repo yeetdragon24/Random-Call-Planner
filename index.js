@@ -1,50 +1,4 @@
-(function (a, b, c, d, e, f) {
-	function k(a) {
-		var b, c = a.length, e = this, f = 0, g = e.i = e.j = 0, h = e.S = [];
-		for (c || (a = [c++]); d > f;) h[f] = f++;
-		for (f = 0; d > f; f++) h[f] = h[g = j & g + a[f % c] + (b = h[f])], h[g] = b;
-		(e.g = function (a) {
-			for (var b, c = 0, f = e.i, g = e.j, h = e.S; a--;) b = h[f = j & f + 1], c = c * d + h[j & (h[f] = h[g = j & g + b]) + (h[g] = b)];
-			return e.i = f, e.j = g, c
-		})(d)
-	}
-
-	function l(a, b) {
-		var e, c = [], d = (typeof a)[0];
-		if (b && "o" == d) for (e in a) try {
-			c.push(l(a[e], b - 1))
-		} catch (f) {
-		}
-		return c.length ? c : "s" == d ? a : a + "\0"
-	}
-
-	function m(a, b) {
-		for (var d, c = a + "", e = 0; c.length > e;) b[j & e] = j & (d ^= 19 * b[j & e]) + c.charCodeAt(e++);
-		return o(b)
-	}
-
-	function n(c) {
-		try {
-			return a.crypto.getRandomValues(c = new Uint8Array(d)), o(c)
-		} catch (e) {
-			return [+new Date, a, a.navigator.plugins, a.screen, o(b)]
-		}
-	}
-
-	function o(a) {
-		return String.fromCharCode.apply(0, a)
-	}
-
-	var g = c.pow(d, e), h = c.pow(2, f), i = 2 * h, j = d - 1;
-	c.seedrandom = function (a, f) {
-		var j = [], p = m(l(f ? [a, o(b)] : 0 in arguments ? a : n(), 3), j), q = new k(j);
-		return m(o(q.S), b), c.random = function () {
-			for (var a = q.g(e), b = g, c = 0; h > a;) a = (a + c) * d, b *= d, c = q.g(1);
-			for (; a >= i;) a /= 2, b /= 2, c >>>= 1;
-			return (a + c) / b
-		}, p
-	}, m(c.random(), b)
-})(this, [], Math, 256, 6, 52);
+!function(n,r,t,o,e,u){function a(n){var r,t=n.length,e=this,u=0,a=e.i=e.j=0,f=e.S=[];for(t||(n=[t++]);o>u;)f[u]=u++;for(u=0;o>u;u++)f[u]=f[a=g&a+n[u%t]+(r=f[u])],f[a]=r;(e.g=function(n){for(var r,t=0,u=e.i,a=e.j,f=e.S;n--;)r=f[u=g&u+1],t=t*o+f[g&(f[u]=f[a=g&a+r])+(f[a]=r)];return e.i=u,e.j=a,t})(o)}function f(n,r){for(var t,o=n+"",e=0;o.length>e;)r[g&e]=g&(t^=19*r[g&e])+o.charCodeAt(e++);return i(r)}function i(n){return String.fromCharCode.apply(0,n)}var c=t.pow(o,e),h=t.pow(2,52),$=2*h,g=o-1;t.seedrandom=function(u,g){var p=[],s=f(function n(r,t){var o,e=[],u=(typeof r)[0];if(t&&"o"==u)for(o in r)try{e.push(n(r[o],t-1))}catch(a){}return e.length?e:"s"==u?r:r+"\0"}(g?[u,i(r)]:0 in arguments?u:function t(e){try{return n.crypto.getRandomValues(e=new Uint8Array(o)),i(e)}catch(u){return[+new Date,n,n.navigator.plugins,n.screen,i(r)]}}(),3),p),v=new a(p);return f(i(v.S),r),t.random=function(){for(var n=v.g(e),r=c,t=0;h>n;)n=(n+t)*o,r*=o,t=v.g(1);for(;n>=$;)n/=2,r/=2,t>>>=1;return(n+t)/r},s},f(t.random(),r)}(this,[],Math,256,6,52);
 
 function choose(arr) {
 	return arr[Math.floor(Math.random() * arr.length)];
@@ -53,23 +7,28 @@ function choose(arr) {
 var app = angular.module('myApp', ['ngMaterial']);
 app.controller('myCtrl', function ($scope) {
 	$scope.seed = ""
-	//$scope.ascensionMode = 0
+	$scope.save_string = ""
+	
+	$scope.lookahead = 200
+	
+	$scope.modes = [
+		{id: 'grimoire', name: 'Grimoire', modName: 'Spell #', lookahead: 'Lookahead length', calls: 'Call #'},
+		{id: 'clones', name: 'CMU', modName: 'Clone ID', lookahead: 'Clone amount', calls: 'Call '}
+	];
+	$scope.mode = $scope.modes[0]
+	
+	$scope.min_call = 0;
+	$scope.max_call = 7;
+	
 	$scope.spellsCastTotal = 0
 	$scope.spellsCastThisAscension = 0
-	//$scope.save_string = "Mi4wMTl8fDE1NTcwMjQwMjkzMjQ7MTUyNTU2Mzg4NjQ5ODsxNTU3MDI2MDY3NTI2O1ByZXR0eSBCaXNjdWl0O2ljb2NkfDExMTExMTExMTAwMTAwMTAwMDAxMHwzMTcyOTc5ODU2ODk2MS4wNzsyNDk5OTU5MzQxMDEyOTYuNjszNTE0OzgzMzc7Nzc3NzExMzQ3NDEzMDIuMjc7NzI2ODU7MDszOzEuNjMwODE0MDg0NjAwMTQxOGUrMTAxOzA7MDswOzA7MDsxMDg7MTE7MDswOzExOzE7MjU4MzAzNjsxO2NocmlzdG1hczswOzA7NS40NjM0NjQ4MjMyNzM2MjRlKzI5OzUuNDYzNDY0ODIzMjczNjI0ZSsyOTsxMDM0OTI0NTIwNTExOzA7MDsyMjY7MjI4OzIyMzsyMjI7MjI1OzU7MTswOzE7MTAwOzA7MDsxODk7NDY3OzE1NTcwMjM1NTE1NDY7MTU1Njk5MjAzMDQ0ODswOzEyOSwyMjc7NDA7fDE2MCwxNjAsMTg0MDI4NTc4NDIyMCwxLCwwOzE1MCwxNTAsNzE2NTA1ODQ0NTcwLDEsLDA7MTAwLDIxMCwyODczMDgyMzkzMyw5LDE1NTcwMjYyODY2MDQ6MDoxNTU3MDI0MDI5MzMxOjA6MDozNzM5OjE6MToxNTU3MDI0MDI5MzMxOiAxMTExMTAxMDExMTExMTAwMDAwMDEwMTEwMDAwMDAwMTAwIDA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOjA6MDowOiwwOzEwMCwyMDAsODg2MTIxODQ2MDMsMSwsMDsxMDAsMTgwLDE5NjIxNTUxOTQzMSwxLCwwOzgwLDE1MCw3MzUxMjI3MzcxNzcsMSwsMDs1MCw1MCwxNzUzMjgyNjI2MDA4LDEsMi8tMS8tMSAyIDE1NTcwMjU5NTgwMzQgMSwwOzUwLDUxLDY5OTUwMzAwMjc2NTksMSwzNiAwIDM1NTUgMSwwOzMwLDMwLDE5Njg2NTA3NjkzNjA0LDEsLDA7MTUsMTUsMjE5ODQxODMyNjA2NDIsMSwsMDsxMCwxMCwyMzI3OTQ1NzQyMDkyOCwxLCwwOzUsNSw1OTkyOTYzODI0OTY5OSwyLCwwOzAsMCwwLDQsLDA7MCwwLDAsMTAsLDA7MCwwLDAsNCwsMDswLDAsMCwxMCwsMDt8MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMDAxMDEwMDAxMDEwMDAxMTExMTExMTExMTExMTExMTExMTExMTEwMDExMTExMTExMDAwMDAwMDAxMTExMTAxMTExMTExMTExMTExMTAwMDAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTExMTExMTEwMDExMTEwMDAwMDAwMDExMDAxMTExMTAwMDEwMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDEwMTAxMDEwMTAwMDExMTExMTExMDAwMDAwMDAwMDExMDAwMDAwMDAwMDAwMDAwMDAwMTAwMDAwMDAwMDAwMDAwMDExMDAxMTAwMTEwMDExMTExMTExMTEwMDAwMDAwMDExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxMTExMTAxMDEwMDAxMDAwMDAxMDAwMTEwMDAwMDAwMDAwMDAwMDAwMDAxMTExMTExMTAwMDAwMDEwMTEwMDAwMDAxMTAwMDAwMDAwMDAwMDAwMTExMTAwMTExMTAwMTEwMDAwMDAxMTExMTExMTAwMDAxMTExMTExMTAwMDAxMTExMTExMDAwMDAxMTExMTExMTExMTEwMDAwMDAwMDAwMDAwMDAwMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEwMTAxMDExMTExMTExMTExMTExMDAxMDAwMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDExMTExMTExMTExMTExMTExMDExMTExMTExMDAwMDExMDAwMDEwMDAwMDAwMDAxMDAwMDAxMDAwMTAwMDEwMDAwMDAwMDAwMDAwMDAwMDAwMTExMTExMTExMTAwMDAwMDAwMDAwMDAwMDAwMDAwMTExMTExMTExMTExMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxMDAwMDAwMDAwMDAwMDExMTExMTEwMDAwMDAwMDAwMDAwMDAwMDAwMTAwMDAwMDAwMDAwMDAwMDEwMTAxMDEwMTAxMDEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEwMTExMTAwMDAwMDAwMDAxMTExMTExMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTEwMDExMTExMTExMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTExMTEwMTEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxMTExMTExMXwxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMDExMTExMTExMTExMTExMTExMTExMTExMTEwMDAwMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEwMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEwMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMDExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMDAwMDAwMDAwMDAwMDExMTEwMTExMTExMTExMTEwMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMDExMTExMTExMTExMTExMTExMTExMTExMTExMTExMDExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExfA%3D%3D%21END%21%3D%3D%21END%21"
-	$scope.save_string = ""
-	$scope.lookahead = 200
+	
 
 	$scope.load_more = function () {
 		$scope.lookahead += 50
-		$scope.update_cookies()
+		$scope.update_values()
 	}
 
-	$scope.cast_spell = function () {
-		$scope.spellsCastThisAscension++;
-		$scope.spellsCastTotal++;
-		$scope.update_cookies();
-	}
 
 	$scope.print_scope = function () {
 		console.log($scope);
@@ -98,22 +57,25 @@ app.controller('myCtrl', function ($scope) {
 		$scope.spellsCastThisAscension = parseInt(spl[7].split(' ')[1]) || 0;
 		console.log('Spells cast this ascension: ' + $scope.spellsCastThisAscension);
 
-		$scope.update_cookies();
+		$scope.update_values();
 	}
 
-	$scope.update_cookies = function () {
+	$scope.update_values = function () {
 		$scope.cookies = []
 		$scope.randomSeeds = [];
-		$scope.displayCookies = [];
 		currentTime = Date.now();
-		for (i = 0; i < $scope.lookahead; i++) {
+		for (i = $scope.min_call - Number($scope.mode.id == 'grimoire'); i <= $scope.max_call - Number($scope.mode.id == 'grimoire'); i++) {
 			currentSpell = i+$scope.spellsCastTotal;
-			$scope.randomSeeds.push(check_randoms(currentSpell));
+			$scope.randomSeeds.push(check_randoms(currentSpell, $scope.lookahead));
 		}
+		$scope.starting_call = $scope.min_call;
+		$scope.ending_call = $scope.max_call;
 		
-		[...document.getElementsByClassName("md-no-sticky")].forEach(el => {
-			el.style.setProperty('display', 'none', 'important');
-		}); //extreme skull
+		$scope.last_mode = $scope.mode;
+		
+		//[...document.getElementsByClassName("md-no-sticky")].forEach(el => {
+		//	el.style.setProperty('display', 'none', 'important');
+		//}); //extreme skull
 		
 		console.log($scope.randomSeeds);
 		console.log($scope.randomSeeds);
@@ -131,173 +93,31 @@ app.controller('myCtrl', function ($scope) {
 			}
 		}
 	}
-
-	//want to return shortest, and first sequence for a given combo_length
-	//if nothing that satisfies max_spread, shortest will still be filled but first will be empty
-	function findCombos(combo_length, max_spread, bsIndices, skipIndices) {
-		let shortestDistance = 10000000;
-		let shortestStart = -1;
-
-		let firstDistance = 10000000;
-		let firstStart = -1
-
-		for (i = 0; i + combo_length <= bsIndices.length; i++) {
-			let seqStart = bsIndices[i];
-			let seqEnd = bsIndices[i + combo_length - 1];
-			let baseDistance = seqEnd - seqStart + 1;
-
-			let skips = skipIndices.filter((idx) => idx > seqStart && idx < seqEnd && !bsIndices.includes(idx));
-
-			let distance = baseDistance - skips.length;
-			if (firstStart == -1 && distance <= combo_length + max_spread) {
-				firstStart = seqStart;
-				firstDistance = distance;
-			}
-
-			if (distance < shortestDistance) {
-				shortestStart = seqStart;
-				shortestDistance = distance;
-			}
+	
+	$scope.mode_change = function () {
+		if ($scope.mode.id == 'clones') {
+			$scope.lookahead = 43;
+			$scope.min_call = 0;
+			$scope.max_call = 30;
 		}
-
-		return {
-			shortest: {idx: shortestStart, length: shortestDistance},
-			first: {idx: firstStart, length: firstDistance}
-		};
-	}
-
-	function cookiesContainBuffs(include_ef, ...cookies) {
-		return cookies.some((cookie) => {
-			return cookie.type == 'Building Special' || (include_ef && cookie.type == 'Elder Frenzy');
-		});
+		else {
+			$scope.lookahead = 200;
+			$scope.min_call = 0;
+			$scope.max_call = 7;
+		}
+		$scope.update_values();
 	}
 
 	function choose(arr) {
 		return arr[Math.floor(Math.random() * arr.length)];
 	}
 
-	function check_gambler(spellsCast) {
-		Math.seedrandom($scope.seed + '/' + spellsCast);
-
-		spells = [];
-		for (var i in $scope.spells) {
-			if (i != "gambler's fever dream")
-				spells.push($scope.spells[i]);
-		}
-
-		var gfdSpell = choose(spells);
-		//simplifying the below cause this isn't patched yet afaict and i'll never be playing with diminished ineptitutde backfire
-		var gfdBackfire = 0.5; /*M.getFailChance(gfdSpell);
-    
-    if(FortuneCookie.detectKUGamblerPatch()) gfdBackfire *= 2;
-    else gfdBackfire = Math.max(gfdBackfire, 0.5);*/
-
-		gamblerSpell = {};
-		gamblerSpell.type = gfdSpell.name;
-		gamblerSpell.hasBs = false;
-		gamblerSpell.hasEf = false;
-
-		Math.seedrandom($scope.seed + '/' + (spellsCast + 1));
-		if (Math.random() < (1 - gfdBackfire)) {
-			gamblerSpell.backfire = false;
-
-			if (gfdSpell.name == "Force the Hand of Fate") {
-				gamblerSpell.innerCookie1 = check_cookies(spellsCast + 1, '', false, true);
-				gamblerSpell.innerCookie2 = check_cookies(spellsCast + 1, '', true, true);
-
-				gamblerSpell.hasBs = gamblerSpell.innerCookie1.type == 'Building Special' || gamblerSpell.innerCookie2.type == 'Building Special';
-			}
-
-			//TODO: Do something with edifice to make it clear if it will fail or not. like this:
-			//if(gfdSpell.name == "Spontaneous Edifice") spellOutcome += ' (' + FortuneCookie.gamblerEdificeChecker(spellsCast + 1, true) + ')';
-		} else {
-			gamblerSpell.backfire = true;
-
-			if (gfdSpell.name == "Force the Hand of Fate") {
-				gamblerSpell.innerCookie1 = check_cookies(spellsCast + 1, '', false, false);
-				gamblerSpell.innerCookie2 = check_cookies(spellsCast + 1, '', true, false);
-
-				gamblerSpell.hasEf = gamblerSpell.innerCookie1.type == 'Elder Frenzy' || gamblerSpell.innerCookie2.type == 'Elder Frenzy';
-			}
-
-			//TODO: again, handle spontaneous edifice
-			//if(gfdSpell.name == "Spontaneous Edifice") spellOutcome += ' (' + FortuneCookie.gamblerEdificeChecker(spellsCast + 1, false) + ')';
-		}
-
-		return gamblerSpell;
-	}
-
-	function check_cookies(spells, season, chime, forcedGold) {
-		Math.seedrandom($scope.seed + '/' + spells);
-		roll = Math.random()
-		if (forcedGold !== false && (forcedGold || roll < (1 - (0.15*$scope.on_screen_cookies + 0.15*(1 + 0.1*$scope.supremeintellect)*(1 - 0.9*$scope.diminishineptitude))))) {
-			/* Random is called a few times in setting up the golden cookie */
-			if (chime == 1 && $scope.ascensionMode != 1) Math.random();
-			if (season == 'valentines' || season == 'easter') {
-				Math.random();
-			}
-			Math.random();
-			Math.random();
-			/**/
-
-			var choices = [];
-			choices.push('Frenzy', 'Lucky');
-			if (!$scope.dragonflight) choices.push('Click Frenzy');
-			if (Math.random() < 0.1) choices.push('Cookie Storm', 'Cookie Storm', 'Blab');
-			if (Math.random() < 0.25) choices.push('Building Special');
-			if (Math.random() < 0.15) choices = ['Cookie Storm Drop'];
-			if (Math.random() < 0.0001) choices.push('Free Sugar Lump');
-			cookie = {}
-			cookie.wrath = false
-			cookie.type = choose(choices);
-			if (cookie.type == 'Frenzy') cookie.description = "Gives x7 cookie production for 77 seconds.";
-			if (cookie.type == 'Lucky') cookie.description = "Gain 13 cookies plus the lesser of 15% of bank or 15 minutes of production.";
-			if (cookie.type == 'Click Frenzy') cookie.description = "Gives x777 cookies per click for 13 seconds.";
-			if (cookie.type == 'Blab') cookie.description = "Does nothing but has a funny message.";
-			if (cookie.type == 'Cookie Storm') cookie.description = "A massive amount of Golden Cookies appears for 7 seconds, each granting you 1–7 minutes worth of cookies.";
-			if (cookie.type == 'Cookie Storm Drop') cookie.description = "Gain cookies equal to 1-7 minutes production";
-			if (cookie.type == 'Building Special') {
-				cookie.description = "Get a variable bonus to cookie production for 30 seconds.";
-				cookie.noteworthy = true;
-			}
-			if (cookie.type == 'Free Sugar Lump') cookie.description = "Add a free sugar lump to the pool";
-			return cookie;
-		} else {
-			/* Random is called a few times in setting up the golden cookie */
-			if (chime == 1 && $scope.ascensionMode != 1) Math.random();
-			if (season == 'valentines' || season == 'easter') {
-				Math.random();
-			}
-			Math.random();
-			Math.random();
-			/**/
-
-			var choices = [];
-			choices.push('Clot', 'Ruin');
-			if (Math.random() < 0.1) choices.push('Cursed Finger', 'Elder Frenzy');
-			if (Math.random() < 0.003) choices.push('Free Sugar Lump');
-			if (Math.random() < 0.1) choices = ['Blab'];
-			cookie = {}
-			cookie.wrath = true
-			cookie.type = choose(choices);
-			if (cookie.type == 'Clot') cookie.description = "Reduce production by 50% for 66 seconds.";
-			if (cookie.type == 'Ruin') cookie.description = "Lose 13 cookies plus the lesser of 5% of bank or 15 minutes of production";
-			if (cookie.type == 'Cursed Finger') cookie.description = "Cookie production halted for 10 seconds, but each click is worth 10 seconds of production.";
-			if (cookie.type == 'Blab') cookie.description = "Does nothing but has a funny message.";
-			if (cookie.type == 'Elder Frenzy') {
-				cookie.description = "Gives x666 cookie production for 6 seconds";
-				cookie.noteworthy = true;
-			}
-			if (cookie.type == 'Free Sugar Lump') cookie.description = "Add a free sugar lump to the pool";
-			return cookie;
-		}
-	}
-	
-	function check_randoms(spells) {
-		Math.seedrandom($scope.seed + '/' + spells);
+	function check_randoms(modifier, amount) {
+		Math.seedrandom($scope.seed + ($scope.mode.id == 'clones' ? ' clone ' : '/') + modifier);
 		let randomValues = [];
-		for (let i = 0; i < 10; i++) {
-			randomValues.push(Math.random());
+		for (let i = 0; i < amount; i++) {
+			value = Math.random();
+			randomValues.push([value.toFixed($scope.mode.id == 'clones' ? 6 : (Math.max(Math.min(18-$scope.max_call+$scope.min_call, 8), 3))), value]);
 		}
 		return randomValues;
 	}
@@ -552,4 +372,5 @@ app.controller('myCtrl', function ($scope) {
 			},
 		},
 	};
+	
 });
