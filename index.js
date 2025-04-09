@@ -6,19 +6,22 @@ function choose(arr) {
 
 var app = angular.module('myApp', ['ngMaterial']);
 app.controller('myCtrl', function ($scope) {
-	$scope.seed = ""
+	$scope.seed = "aaaaa"
+	$scope.seed_from_save = $scope.seed
 	$scope.save_string = ""
 	
 	$scope.lookahead = 200
-	
+		
 	$scope.modes = [
-		{id: 'grimoire', name: 'Grimoire', modName: 'Spell #', lookahead: 'Lookahead length', calls: 'Call #'},
-		{id: 'clones', name: 'CMU', modName: 'Clone ID', lookahead: 'Clone amount', calls: 'Call '}
+		{id: 'grimoire', name: 'Grimoire', modName: 'Spell #', sModName: 'Spell', lookahead: 'Lookahead length', calls: 'Call #', sCalls: '#'},
+		{id: 'clones', name: 'CMU', modName: 'Clone ID', sModName: 'ID', lookahead: 'Clone amount', calls: 'Call ', sCalls: 'Call '}
 	];
 	$scope.mode = $scope.modes[0]
 	
 	$scope.min_call = 0;
-	$scope.max_call = 7;
+	$scope.max_call = 10;
+	$scope.sCT = 0;
+	$scope.sCTA = 0;
 	
 	$scope.spellsCastTotal = 0
 	$scope.spellsCastThisAscension = 0
@@ -38,25 +41,30 @@ app.controller('myCtrl', function ($scope) {
 		if (!str) {
 			str = $scope.save_string;
 		}
-		str = str.split('!END!')[0];
-		str = Base64.decode(str);
-		str = str.split('|');
-		spl = str[2].split(';');
-		$scope.seed = spl[4];
-		console.log($scope.seed);
+		if (str.length == 5) {
+			$scope.seed = str;
+		}
+		else {
+			str = str.split('!END!')[0];
+			str = Base64.decode(str);
+			str = str.split('|');
+			spl = str[2].split(';');
+			$scope.seed = spl[4];
+			$scope.seed_from_save = $scope.seed;
+			console.log($scope.seed);
 
-		spl = str[4].split(';');
-		$scope.ascensionMode = parseInt(spl[29]);
-		console.log(spl);
-		spl = str[5].split(';');
-		console.log(spl[7]);
+			spl = str[4].split(';');
+			$scope.ascensionMode = parseInt(spl[29]);
+			console.log(spl);
+			spl = str[5].split(';');
+			console.log(spl[7]);
 
-		$scope.spellsCastTotal = parseInt(spl[7].split(' ')[2]) || 0;
-		console.log('Total spells cast: ' + $scope.spellsCastTotal);
+			$scope.sCT = parseInt(spl[7].split(' ')[2]) || 0;
+			console.log('Total spells cast: ' + $scope.spellsCastTotal);
 
-		$scope.spellsCastThisAscension = parseInt(spl[7].split(' ')[1]) || 0;
-		console.log('Spells cast this ascension: ' + $scope.spellsCastThisAscension);
-
+			$scope.sCTA = parseInt(spl[7].split(' ')[1]) || 0;
+			console.log('Spells cast this ascension: ' + $scope.spellsCastThisAscension);
+		}
 		$scope.update_values();
 	}
 
@@ -64,9 +72,14 @@ app.controller('myCtrl', function ($scope) {
 		$scope.cookies = []
 		$scope.randomSeeds = [];
 		currentTime = Date.now();
-		for (i = $scope.min_call - Number($scope.mode.id == 'grimoire'); i <= $scope.max_call - Number($scope.mode.id == 'grimoire'); i++) {
-			currentSpell = i+$scope.spellsCastTotal;
-			$scope.randomSeeds.push(check_randoms(currentSpell, $scope.lookahead));
+		
+		$scope.spellsCastTotal = $scope.sCT;
+		$scope.spellsCastThisAscension = $scope.sCTA;
+		
+		for (let i = 0; i < $scope.lookahead; i++) {
+			currentSpell = i;
+			if ($scope.mode.id == 'grimoire') currentSpell += $scope.spellsCastTotal;
+			$scope.randomSeeds.push(check_randoms(currentSpell, $scope.min_call, $scope.max_call));
 		}
 		$scope.starting_call = $scope.min_call;
 		$scope.ending_call = $scope.max_call;
@@ -77,7 +90,6 @@ app.controller('myCtrl', function ($scope) {
 		//	el.style.setProperty('display', 'none', 'important');
 		//}); //extreme skull
 		
-		console.log($scope.randomSeeds);
 		console.log($scope.randomSeeds);
 		console.log(Date.now()-currentTime);
 	}
@@ -103,7 +115,7 @@ app.controller('myCtrl', function ($scope) {
 		else {
 			$scope.lookahead = 200;
 			$scope.min_call = 0;
-			$scope.max_call = 7;
+			$scope.max_call = 8;
 		}
 		$scope.update_values();
 	}
@@ -112,10 +124,12 @@ app.controller('myCtrl', function ($scope) {
 		return arr[Math.floor(Math.random() * arr.length)];
 	}
 
-	function check_randoms(modifier, amount) {
-		Math.seedrandom($scope.seed + ($scope.mode.id == 'clones' ? ' clone ' : '/') + modifier);
+	function check_randoms(modifier, start, end) {
+		const seed = $scope.seed + ($scope.mode.id == 'clones' ? ' clone ' : '/') + modifier;
+		Math.seedrandom(seed);
 		let randomValues = [];
-		for (let i = 0; i < amount; i++) {
+		grimoireOffset = Number($scope.mode.id == 'grimoire');
+		for (let i = start + grimoireOffset; i < end+grimoireOffset; i++) {
 			value = Math.random();
 			randomValues.push([value.toFixed($scope.mode.id == 'clones' ? 6 : (Math.max(Math.min(18-$scope.max_call+$scope.min_call, 8), 3))), value]);
 		}
