@@ -1,4 +1,4 @@
-body {
+body, html {
     background-color: white;
 }
 
@@ -15,7 +15,7 @@ input {
 
 .lowerContent {
 	margin: auto;
-	width: 80%;
+	/* width: 100%; */
 }
 
 table, th, td {
@@ -79,4 +79,9 @@ a:hover, a.hover {
 .hide-column > input {
   width: 13px;
   accent-color: rgb(255,89,145);
+}
+
+#table {
+	width: fit-content;
+	min-width: 100%;
 }
