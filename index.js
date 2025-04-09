@@ -79,7 +79,7 @@ app.controller('myCtrl', function ($scope) {
 		for (let i = 0; i < $scope.lookahead; i++) {
 			currentSpell = i;
 			if ($scope.mode.id == 'grimoire') currentSpell += $scope.spellsCastTotal;
-			$scope.randomSeeds.push(check_randoms(currentSpell, $scope.min_call, $scope.max_call));
+			$scope.randomSeeds.push(check_randoms(currentSpell, $scope.min_call-1, $scope.max_call));
 		}
 		$scope.starting_call = $scope.min_call;
 		$scope.ending_call = $scope.max_call;
@@ -109,13 +109,13 @@ app.controller('myCtrl', function ($scope) {
 	$scope.mode_change = function () {
 		if ($scope.mode.id == 'clones') {
 			$scope.lookahead = 43;
-			$scope.min_call = 0;
+			$scope.min_call = 5;
 			$scope.max_call = 30;
 		}
 		else {
 			$scope.lookahead = 200;
-			$scope.min_call = 0;
-			$scope.max_call = 8;
+			$scope.min_call = 1;
+			$scope.max_call = 10;
 		}
 		$scope.update_values();
 	}
@@ -128,10 +128,13 @@ app.controller('myCtrl', function ($scope) {
 		const seed = $scope.seed + ($scope.mode.id == 'clones' ? ' clone ' : '/') + modifier;
 		Math.seedrandom(seed);
 		let randomValues = [];
-		grimoireOffset = Number($scope.mode.id == 'grimoire');
-		for (let i = start + grimoireOffset; i < end+grimoireOffset; i++) {
+		grimoireOffset = 0; Number($scope.mode.id == 'grimoire');
+		for (let i = 0; i < start; i++) {
+			Math.random(); //discarded values
+		}
+		for (let i = start+grimoireOffset; i < end+grimoireOffset; i++) {
 			value = Math.random();
-			randomValues.push([value.toFixed($scope.mode.id == 'clones' ? 6 : (Math.max(Math.min(18-$scope.max_call+$scope.min_call, 8), 3))), value]);
+			randomValues.push([value.toFixed($scope.mode.id == 'clones' ? 6 : (Math.max(Math.min(18-$scope.max_call+$scope.min_call, 8), 5))), value]);
 		}
 		return randomValues;
 	}
