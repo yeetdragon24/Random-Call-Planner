@@ -31,7 +31,7 @@
     <div class="content">
 		<div layout="row">
 			<md-input-container flex>
-				<label>Save Code</label>
+				<label>Save Code / Game seed</label>
 				<input onClick="this.select();" ng-model="save_string" style="color: grey;">
 			</md-input-container>
 			<md-button class="md-raised md-primary" ng-click="load_game()">Import Save</md-button>
@@ -244,10 +244,13 @@
 		<br>
 		<label>Mode</label>
 		<select ng-model="mode" ng-change="mode_change()" ng-options="x.name for x in modes"></select>
+		<label>Seed</label>
+		<input ng-model="seed">
+		<label ng-show="seed_from_save !== seed"><b>Seed does not match seed from save!</b></label>
 		<br><br><md-divider>
 		
 		<label>{{mode.lookahead}}</label>
-		<input type="number" ng-model="lookahead" min=10 max=1000>
+		<input type="number" ng-model="lookahead" min=1>
 		<br><md-divider>
 		
 		
@@ -255,6 +258,14 @@
 		<input type="number" ng-model="min_call" min=0>
 		<label>to</label>
 		<input type="number" ng-model="max_call" min=0>
+		
+		<span style="{{mode.id == 'grimoire' ? '' : 'display: none'}}">
+		<md-divider>
+		<label>Spells cast total</label>
+		<input type="number" ng-model="sCT" min=0>
+		<label>Spells cast this ascension</label>
+		<input type="number" ng-model="sCTA" min=0 max={{sCT}}>
+		</span>
 		
 		<md-divider>
 		<md-button class="md-raised md-primary" ng-click="update_values()">Apply Settings</md-button>
@@ -264,19 +275,19 @@
 	</div>
 	<div class="lowerContent">
         <div layout-gt-sm="row" layout="column" id="table">
-            <div flex-gt-sm="{{mode.id == 'grimoire' ? 20 : 10}}">
-                <md-toolbar layout="row" class="md-hue-3">
+            <div flex-gt-sm="{{mode.id == 'grimoire' ? 15 : 10}}" style="position: sticky; left: 0; z-index: 10;">
+                <md-toolbar layout="row" class="md-hue-3" style="position: sticky; top: 0;">
                     <div class="md-toolbar-tools">
-                        <h1>{{mode.modName}}</h1>
+                        <h1>{{ending_call-starting_call > 15 ? mode.sModName : mode.modName}}</h1>
                     </div>
                 </md-toolbar>
                 <md-content>
                     <md-list flex>
-                        <md-list-item class="md-2-line" ng-repeat="call in randomSeeds[0]" ng-click="null">
+                        <md-list-item class="md-2-line" ng-repeat="call in randomSeeds" ng-click="null" style="background-color: #eeeeee">
                             <div class="md-list-item-text" layout="column">
                                 <a name="{{$index}}"></a>
                                 <h3>{{(mode.id == 'grimoire' ?
-									(spellsCastThisAscension+$index) + ' | ' + (spellsCastTotal+$index) :
+									(spellsCastThisAscension+$index+1) + ' | ' + (spellsCastTotal+$index+1) :
 									$index)}}</h3>
                             </div>
                         </md-list-item>
@@ -285,18 +296,18 @@
                 </md-content>
             </div>
             <md-divider></md-divider>
-			<div ng-show="last_mode == mode" ng-repeat="(index, value) in randomSeeds" flex-gt-sm="80">
+			<div ng-repeat="(y, value) in randomSeeds[0]" flex-gt-sm="80">
 				<div>
-					<md-toolbar layout="row" class="md-hue-3">
+					<md-toolbar layout="row" class="md-hue-3" style="position: sticky; top: 0;">
 						<div class="md-toolbar-tools">
-							<h1>{{mode.calls+' '+(index+1+starting_call)}}</h1>
+							<h1>{{(ending_call-starting_call > 15 ? mode.sCalls : mode.calls)+''+($index+1+starting_call)}}</h1>
 						</div>
 					</md-toolbar>
 					<md-content>
 						<md-list flex>
-							<md-list-item class="md-2-line" ng-repeat="value2 in value" ng-click="null">
+							<md-list-item class="md-2-line" ng-repeat="(x, value2) in randomSeeds" ng-click="null">
 								<div class="md-list-item-text" layout="column">
-									<h3 title="{{value2[1]}}">{{value2[0]}}</h3>
+									<h3 title="{{randomSeeds[x][y][1]}}">{{randomSeeds[x][y][0]}}</h3>
 								</div>
 							</md-list-item>
 						</md-list>
