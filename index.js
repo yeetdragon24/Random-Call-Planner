@@ -18,7 +18,7 @@ app.controller('myCtrl', function ($scope) {
 	];
 	$scope.mode = $scope.modes[0]
 	
-	$scope.min_call = 0;
+	$scope.min_call = 1;
 	$scope.max_call = 10;
 	$scope.sCT = 0;
 	$scope.sCTA = 0;
