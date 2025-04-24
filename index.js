@@ -100,7 +100,7 @@ app.controller('myCtrl', function ($scope) {
 			if ($scope.mode.id == 'grimoire') currentSpell += $scope.spellsCastTotal;
 
             if ($scope.render) {
-                lookaheadList.appendChild(createListItem(`${$scope.spellsCastThisAscension + i} | ${$scope.spellsCastTotal + $scope.spellsCastThisAscension + i}`, true));
+                lookaheadList.appendChild(createListItem(`${$scope.spellsCastThisAscension + i + 1} | ${$scope.spellsCastTotal + $scope.spellsCastThisAscension + i + 1}`, true));
                 lookaheadList.appendChild(document.createElement('md-divider'));
             }
 
