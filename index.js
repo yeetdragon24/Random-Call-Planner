@@ -7,39 +7,40 @@ function choose(arr) {
 var app = angular.module('myApp', ['ngMaterial']);
 app.controller('myCtrl', function ($scope) {
 	$scope.seed = "aaaaa"
-	$scope.seed_from_save = $scope.seed
-	$scope.save_string = ""
+	$scope.seedFromSave = $scope.seed
+	$scope.saveString = ""
+
+    $scope.render = true;
 	
 	$scope.lookahead = 200
 		
 	$scope.modes = [
-		{id: 'grimoire', name: 'Grimoire', modName: 'Spell #', sModName: 'Spell', lookahead: 'Lookahead length', calls: 'Call #', sCalls: '#'},
-		{id: 'clones', name: 'CMU', modName: 'Clone ID', sModName: 'ID', lookahead: 'Clone amount', calls: 'Call ', sCalls: 'Call '}
+		{id: 'grimoire', name: 'Grimoire', modName: 'Spell #',  lookahead: 'Lookahead length', calls: 'Call #', sCalls: '#'},
+		{id: 'clones', name: 'CMU', modName: 'Clone ID',  lookahead: 'Clone amount', calls: 'Call ', sCalls: 'Call '}
 	];
 	$scope.mode = $scope.modes[0]
 	
-	$scope.min_call = 1;
-	$scope.max_call = 10;
+	$scope.minCall = 1;
+	$scope.maxCall = 10;
 	$scope.sCT = 0;
-	$scope.sCTA = 0;
 	
 	$scope.spellsCastTotal = 0
 	$scope.spellsCastThisAscension = 0
 	
 
-	$scope.load_more = function () {
-		$scope.lookahead += 50
-		$scope.update_values()
+	$scope.loadMore = function() {
+		$scope.lookahead += 50;
+		$scope.updateValues();
 	}
 
 
-	$scope.print_scope = function () {
+	$scope.printScope = function() {
 		console.log($scope);
 	}
 
-	$scope.load_game = function (str) {
+	$scope.loadGame = function(str) {
 		if (!str) {
-			str = $scope.save_string;
+			str = $scope.saveString;
 		}
 		if (str.length == 5) {
 			$scope.seed = str;
@@ -50,7 +51,7 @@ app.controller('myCtrl', function ($scope) {
 			str = str.split('|');
 			spl = str[2].split(';');
 			$scope.seed = spl[4];
-			$scope.seed_from_save = $scope.seed;
+			$scope.seedFromSave = $scope.seed;
 			console.log($scope.seed);
 
 			spl = str[4].split(';');
@@ -62,39 +63,89 @@ app.controller('myCtrl', function ($scope) {
 			$scope.sCT = parseInt(spl[7].split(' ')[2]) || 0;
 			console.log('Total spells cast: ' + $scope.spellsCastTotal);
 
-			$scope.sCTA = parseInt(spl[7].split(' ')[1]) || 0;
+			$scope.spellsCastThisAscension = parseInt(spl[7].split(' ')[1]) || 0;
 			console.log('Spells cast this ascension: ' + $scope.spellsCastThisAscension);
 		}
-		$scope.update_values();
+		$scope.updateValues();
 	}
 
-	$scope.update_values = function () {
-		$scope.cookies = []
+	$scope.updateValues = function () {
 		$scope.randomSeeds = [];
-		currentTime = Date.now();
+		const currentTime = Date.now();
 		
 		$scope.spellsCastTotal = $scope.sCT;
-		$scope.spellsCastThisAscension = $scope.sCTA;
+
+        let table = new DocumentFragment();
+
+        if ($scope.render) {
+            var [lookaheadCol, lookaheadList] = createColumnItem($scope.mode.modName, true);
+            lookaheadCol.id = 'lookaheadCol'
+            
+            table.append(lookaheadCol);
+            table.append(document.createElement('md-divider'));
+
+            var colEls = [];
+            for (let i = $scope.minCall-1; i < $scope.maxCall; i++) {
+                let els = createColumnItem(`Call #${i+1}`);
+                table.append(els[0]);
+                table.append(document.createElement('md-divider'));
+                colEls[i] = els[1];
+            }
+        }
 		
 		for (let i = 0; i < $scope.lookahead; i++) {
+            let start = Date.now();
+
 			currentSpell = i;
 			if ($scope.mode.id == 'grimoire') currentSpell += $scope.spellsCastTotal;
-			$scope.randomSeeds.push(check_randoms(currentSpell, $scope.min_call-1, $scope.max_call));
+
+            if ($scope.render) {
+                lookaheadList.appendChild(createListItem(`${$scope.spellsCastThisAscension + i} | ${$scope.spellsCastTotal + $scope.spellsCastThisAscension + i}`, true));
+                lookaheadList.appendChild(document.createElement('md-divider'));
+            }
+
+            let seed = $scope.seed + ($scope.mode.id == 'clones' ? ' clone ' : '/') + currentSpell;
+            Math.seedrandom(seed);
+            let randomValues = [];
+            for (let i = 0; i < $scope.minCall-1; i++) Math.random(); //discarded values
+            for (let j = $scope.minCall-1; j < $scope.maxCall; j++) {
+                let start = Date.now();
+
+                value = Math.random();
+                randomValues.push(value);
+
+                if ($scope.render) {
+                    colEls[j].appendChild(createListItem(value.toFixed(6)));
+                    colEls[j].appendChild(document.createElement('md-divider'));
+                }
+            }
+
+			$scope.randomSeeds.push(randomValues);
+
+            //console.log(`Row ${i}: ${Date.now()-start}ms`);
 		}
-		$scope.starting_call = $scope.min_call;
-		$scope.ending_call = $scope.max_call;
+
+        document.getElementById('table').innerHTML = '';
+        document.getElementById('table').appendChild(table);
+
+		$scope.startingCall = $scope.minCall;
+		$scope.endingCall = $scope.maxCall;
+
 		
-		$scope.last_mode = $scope.mode;
+		$scope.lastMode = $scope.mode;
 		
 		//[...document.getElementsByClassName("md-no-sticky")].forEach(el => {
 		//	el.style.setProperty('display', 'none', 'important');
 		//}); //extreme skull
-		
+		console.log(`Total time: ${Date.now()-currentTime}ms`);
+
 		console.log($scope.randomSeeds);
-		console.log(Date.now()-currentTime);
+        window.randomSeeds = $scope.randomSeeds;
+        console.log('The random seed array is accessible in the global variable "randomSeeds"');
+		
 	}
 
-	$scope.collapse_interface = function (contentId) {
+	$scope.collapseInterface = function (contentId) {
 		console.log("content-" + contentId);
 		if( contentId) {
 			var content = document.getElementById("content-" + contentId);
@@ -106,37 +157,87 @@ app.controller('myCtrl', function ($scope) {
 		}
 	}
 	
-	$scope.mode_change = function () {
+	$scope.modeChange = function () {
 		if ($scope.mode.id == 'clones') {
 			$scope.lookahead = 43;
-			$scope.min_call = 6;
-			$scope.max_call = 30;
+			$scope.minCall = 6;
+			$scope.maxCall = 30;
 		}
 		else {
 			$scope.lookahead = 200;
-			$scope.min_call = 1;
-			$scope.max_call = 10;
+			$scope.minCall = 1;
+			$scope.maxCall = 10;
 		}
-		$scope.update_values();
+		$scope.updateValues();
 	}
 
-	function choose(arr) {
-		return arr[Math.floor(Math.random() * arr.length)];
-	}
+    var listItem = (function() {
+        let item = document.createElement('md-list-item');
+        item.className = 'md-2-line _md-button-wrap _md md-clickable';
+        item.role = 'listitem';
+        item.tabIndex = '-1';
+        
+        let buttonCont = document.createElement('div');
+        buttonCont.className = 'md-button md-no-style';
 
-	function check_randoms(modifier, start, end) {
-		const seed = $scope.seed + ($scope.mode.id == 'clones' ? ' clone ' : '/') + modifier;
-		Math.seedrandom(seed);
-		let randomValues = [];
-		grimoireOffset = 0; Number($scope.mode.id == 'grimoire');
-		for (let i = 0; i < start; i++) {
-			Math.random(); //discarded values
-		}
-		for (let i = start+grimoireOffset; i < end+grimoireOffset; i++) {
-			value = Math.random();
-			randomValues.push([value.toFixed($scope.mode.id == 'clones' ? 6 : (Math.max(Math.min(18-$scope.max_call+$scope.min_call, 8), 5))), value]);
-		}
-		return randomValues;
-	}
-	
+        let button = document.createElement('button');
+        button.className = 'md-no-style md-button md-ink-ripple';
+        button.type = 'button';
+        button.setAttribute('ng-click', 'null');
+
+        let outerCont = document.createElement('div');
+        outerCont.className = 'md-list-item-inner';
+        let innerCont = document.createElement('div');
+        innerCont.className = 'md-list-item-text layout-column';
+        innerCont.setAttribute('layout', 'column');
+
+        let textEl = document.createElement('h3');
+
+        innerCont.appendChild(textEl);
+        outerCont.appendChild(innerCont);
+        buttonCont.appendChild(button);
+        buttonCont.appendChild(outerCont);
+        item.appendChild(buttonCont);
+        return item;
+    })();
+    function createListItem(text, lookaheadCol) {
+        let item = listItem.cloneNode(true);
+        item.classList.add(lookaheadCol ? 'lookaheadItem' : 'callItem');
+        item.childNodes[0].childNodes[1].childNodes[0].textContent = text;
+        return item;
+    }
+
+    var columnItem = (function() {
+        let cont = document.createElement('div');
+
+        let callOuterCont = document.createElement('md-toolbar');
+        callOuterCont.setAttribute('layout', 'row');
+        callOuterCont.className = 'md-hue-3 _md layout-row _md-toolbar-transitions colHeader';
+
+        let callInnerCont = document.createElement('div');
+        callInnerCont.className = 'md-toolbar-tools';
+
+        let callText = document.createElement('h1');
+
+        let listCont = document.createElement('md-content');
+        listCont.class = '_md';
+
+        let listEl = document.createElement('md-list');
+        listEl.setAttribute('flex', '');
+        listEl.setAttribute('role', 'list');
+        listEl.className = 'flex';
+
+        callInnerCont.appendChild(callText);
+        callOuterCont.appendChild(callInnerCont);
+        listCont.appendChild(listEl);
+        cont.appendChild(callOuterCont);
+        cont.appendChild(listCont);
+        return cont;
+    })();
+    function createColumnItem(text, lookaheadCol) {
+        let item = columnItem.cloneNode(true);
+        item.className = lookaheadCol ? 'flex-gt-sm-15' : 'flex-gt-sm-80';
+        item.childNodes[0].childNodes[0].childNodes[0].textContent = text;
+        return [item, item.childNodes[1].childNodes[0]]
+    }
 });
