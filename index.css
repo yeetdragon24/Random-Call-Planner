@@ -46,3 +46,14 @@ a {
 .callItem {
     background-color: #FFF;
 }
+
+md-list {
+    padding: 0px!important;
+}
+
+h3 {
+    font-weight: normal;
+    font-size: inherit;
+    margin: auto;
+    padding: 15px 0px;
+}

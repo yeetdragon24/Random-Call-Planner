@@ -6,6 +6,8 @@ function choose(arr) {
 
 var app = angular.module('myApp', ['ngMaterial']);
 app.controller('myCtrl', function ($scope) {
+    const DEV = !window.location.hostname == 'yeetdragon24.github.io';
+
 	$scope.seed = "aaaaa"
 	$scope.seedFromSave = $scope.seed
 	$scope.saveString = ""
@@ -70,23 +72,25 @@ app.controller('myCtrl', function ($scope) {
 	}
 
 	$scope.updateValues = function () {
-		$scope.randomSeeds = [];
+		randomSeeds = [];
 		const currentTime = Date.now();
 		
 		$scope.spellsCastTotal = $scope.sCT;
 
         let table = new DocumentFragment();
 
+        let tables = [];
+
         if ($scope.render) {
-            var [lookaheadCol, lookaheadList] = createColumnItem($scope.mode.modName, true);
-            lookaheadCol.id = 'lookaheadCol'
+            var [lookaheadCol, lookaheadList] = createColumnItem($scope.mode.modName, '15');
+            lookaheadCol.setAttribute('id', 'lookaheadCol');
             
             table.append(lookaheadCol);
             table.append(document.createElement('md-divider'));
 
             var colEls = [];
             for (let i = $scope.minCall-1; i < $scope.maxCall; i++) {
-                let els = createColumnItem(`Call #${i+1}`);
+                let els = createColumnItem('Call #' + (i+1), '80');
                 table.append(els[0]);
                 table.append(document.createElement('md-divider'));
                 colEls[i] = els[1];
@@ -94,7 +98,7 @@ app.controller('myCtrl', function ($scope) {
         }
 		
 		for (let i = 0; i < $scope.lookahead; i++) {
-            let start = Date.now();
+            if (DEV) var start = Date.now();
 
 			currentSpell = i;
 			if ($scope.mode.id == 'grimoire') currentSpell += $scope.spellsCastTotal;
@@ -109,8 +113,6 @@ app.controller('myCtrl', function ($scope) {
             let randomValues = [];
             for (let i = 0; i < $scope.minCall-1; i++) Math.random(); //discarded values
             for (let j = $scope.minCall-1; j < $scope.maxCall; j++) {
-                let start = Date.now();
-
                 value = Math.random();
                 randomValues.push(value);
 
@@ -120,9 +122,9 @@ app.controller('myCtrl', function ($scope) {
                 }
             }
 
-			$scope.randomSeeds.push(randomValues);
+			randomSeeds.push(randomValues);
 
-            //console.log(`Row ${i}: ${Date.now()-start}ms`);
+            if (DEV) console.log(`Row ${i}: ${Date.now()-start}ms`);
 		}
 
         document.getElementById('table').innerHTML = '';
@@ -139,8 +141,8 @@ app.controller('myCtrl', function ($scope) {
 		//}); //extreme skull
 		console.log(`Total time: ${Date.now()-currentTime}ms`);
 
-		console.log($scope.randomSeeds);
-        window.randomSeeds = $scope.randomSeeds;
+		console.log(randomSeeds);
+        window.randomSeeds = randomSeeds;
         console.log('The random seed array is accessible in the global variable "randomSeeds"');
 		
 	}
@@ -173,71 +175,43 @@ app.controller('myCtrl', function ($scope) {
 
     var listItem = (function() {
         let item = document.createElement('md-list-item');
-        item.className = 'md-2-line _md-button-wrap _md md-clickable';
-        item.role = 'listitem';
-        item.tabIndex = '-1';
         
-        let buttonCont = document.createElement('div');
-        buttonCont.className = 'md-button md-no-style';
-
-        let button = document.createElement('button');
-        button.className = 'md-no-style md-button md-ink-ripple';
-        button.type = 'button';
-        button.setAttribute('ng-click', 'null');
-
-        let outerCont = document.createElement('div');
-        outerCont.className = 'md-list-item-inner';
-        let innerCont = document.createElement('div');
-        innerCont.className = 'md-list-item-text layout-column';
-        innerCont.setAttribute('layout', 'column');
+        let textCont = document.createElement('div');
+        textCont.setAttribute('class', 'md-button md-no-style');
 
         let textEl = document.createElement('h3');
 
-        innerCont.appendChild(textEl);
-        outerCont.appendChild(innerCont);
-        buttonCont.appendChild(button);
-        buttonCont.appendChild(outerCont);
-        item.appendChild(buttonCont);
+        textCont.appendChild(textEl);
+        item.appendChild(textCont);
         return item;
     })();
     function createListItem(text, lookaheadCol) {
         let item = listItem.cloneNode(true);
         item.classList.add(lookaheadCol ? 'lookaheadItem' : 'callItem');
-        item.childNodes[0].childNodes[1].childNodes[0].textContent = text;
+        item.childNodes[0].childNodes[0].textContent = text;
         return item;
     }
 
     var columnItem = (function() {
         let cont = document.createElement('div');
 
-        let callOuterCont = document.createElement('md-toolbar');
-        callOuterCont.setAttribute('layout', 'row');
-        callOuterCont.className = 'md-hue-3 _md layout-row _md-toolbar-transitions colHeader';
-
-        let callInnerCont = document.createElement('div');
-        callInnerCont.className = 'md-toolbar-tools';
+        let callCont = document.createElement('md-toolbar');
+        callCont.setAttribute('layout', 'row');
+        callCont.setAttribute('class', 'md-hue-3 md-toolbar-tools');
 
         let callText = document.createElement('h1');
 
-        let listCont = document.createElement('md-content');
-        listCont.class = '_md';
-
         let listEl = document.createElement('md-list');
-        listEl.setAttribute('flex', '');
-        listEl.setAttribute('role', 'list');
-        listEl.className = 'flex';
 
-        callInnerCont.appendChild(callText);
-        callOuterCont.appendChild(callInnerCont);
-        listCont.appendChild(listEl);
-        cont.appendChild(callOuterCont);
-        cont.appendChild(listCont);
+        callCont.appendChild(callText);
+        cont.appendChild(callCont);
+        cont.appendChild(listEl);
         return cont;
     })();
-    function createColumnItem(text, lookaheadCol) {
+    function createColumnItem(text, flexWidth) {
         let item = columnItem.cloneNode(true);
-        item.className = lookaheadCol ? 'flex-gt-sm-15' : 'flex-gt-sm-80';
-        item.childNodes[0].childNodes[0].childNodes[0].textContent = text;
-        return [item, item.childNodes[1].childNodes[0]]
+        item.setAttribute('class', 'flex-gt-sm-' + flexWidth);
+        item.childNodes[0].childNodes[0].textContent = text;
+        return [item, item.childNodes[1]];
     }
 });
